@@ -9,12 +9,15 @@ import {
   TrashIcon,
 } from "../assets/icons";
 import TASKS from "../constants/task";
+import AddTaskDialog from "./AddTaskDialog";
 import Button from "./Button";
 import TaskItem from "./TaskItem";
 import TaskSeparator from "./TaskSeparator";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState(TASKS);
+  const [addTaskDialogIsOpen, setAddTaskDialogIsOpen] = useState(false);
+
   const morningTasks = tasks.filter((task) => task.time === "morning");
   const afternoonTasks = tasks.filter((task) => task.time === "afternoon");
   const eveningTasks = tasks.filter((task) => task.time === "evening");
@@ -61,10 +64,15 @@ const Tasks = () => {
             Limpar Tarefas
             <TrashIcon />
           </Button>
-          <Button>
+          <Button onClick={() => setAddTaskDialogIsOpen(true)}>
             Nova Tarefas
             <AddIcon />
           </Button>
+
+          <AddTaskDialog
+            isOpen={addTaskDialogIsOpen}
+            handleClose={() => setAddTaskDialogIsOpen(false)}
+          />
         </div>
       </div>
 
