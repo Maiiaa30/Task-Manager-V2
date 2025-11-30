@@ -10,9 +10,9 @@ import Input from "./Input";
 import TimeSelect from "./TimeSelect";
 
 const AddTaskDialog = ({ isOpen, handleClose, handleSubmit }) => {
-  const [title, setTitle] = useState();
+  const [title, setTitle] = useState("");
   const [time, setTime] = useState("morning");
-  const [description, setDescription] = useState();
+  const [description, setDescription] = useState("");
 
   const nodeRef = useRef();
 
@@ -24,7 +24,11 @@ const AddTaskDialog = ({ isOpen, handleClose, handleSubmit }) => {
       time: time,
       status: "not_started",
     });
-    console.log(title, time, description);
+
+    setTitle("");
+    setTime("morning");
+    setDescription("");
+
     handleClose();
   };
 
