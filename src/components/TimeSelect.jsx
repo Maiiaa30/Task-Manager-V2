@@ -7,7 +7,7 @@ const TimeSelect = ({ ref, ...props }) => {
       <InputLabel htmlFor="time">Horario</InputLabel>
       <select
         id="time"
-        className="rounded-lg border border-solid border-[#ECECEC] px-3 py-3 outline-[#00ADB5] placeholder:text-sm placeholder:text-[#9A9C9F]"
+        className="outline-brand-primary placeholder:text-brand-text-gray border-brand-border rounded-lg border border-solid px-3 py-3 placeholder:text-sm"
         {...props}
         ref={ref}
       >
