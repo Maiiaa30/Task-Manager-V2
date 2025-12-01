@@ -1,3 +1,4 @@
+import InputErrorMessage from "./InputErrorMessage";
 import InputLabel from "./InputLabel";
 
 const TimeSelect = ({ ref, ...props }) => {
@@ -16,7 +17,7 @@ const TimeSelect = ({ ref, ...props }) => {
       </select>
 
       {props.error && (
-        <p className="text-left text-xs text-red-500">{props.error}</p>
+        <InputErrorMessage>{props.errorMessage}</InputErrorMessage>
       )}
     </div>
   );
