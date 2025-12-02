@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 import InputErrorMessage from "./InputErrorMessage";
 import InputLabel from "./InputLabel";
 
@@ -13,6 +15,11 @@ const Input = ({ label, error, ref, ...rest }) => {
       {error && <InputErrorMessage>{error}</InputErrorMessage>}
     </div>
   );
+};
+
+Input.propTypes = {
+  label: PropTypes.string.isRequired,
+  error: PropTypes.string,
 };
 
 export default Input;
