@@ -103,6 +103,17 @@ const TaskDetailsPage = () => {
     (error) => error.inputName === "description",
   )?.message;
 
+  const handleDeleteClick = async () => {
+    const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      return toast.error("Erro ao apagar tarefa!");
+    }
+    navigate(-1);
+    toast.success("Tarefa apagada com sucesso!");
+  };
+
   return (
     <div className="flex">
       <SideBar />
@@ -127,7 +138,11 @@ const TaskDetailsPage = () => {
             <h1 className="mt-2 text-xl font-semibold">{task?.title}</h1>
           </div>
 
-          <Button color="danger" className={"w-fit self-end"}>
+          <Button
+            color="danger"
+            className={"w-fit self-end"}
+            onClick={handleDeleteClick}
+          >
             <TrashIcon />
             Apagar Tarefa
           </Button>
