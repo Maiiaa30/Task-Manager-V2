@@ -1,17 +1,10 @@
 {
   "tasks": [
     {
-      "id": "1",
-      "title": "Estudar React",
-      "description": "Ler a documentação oficial",
-      "time": "morning",
-      "status": "done"
-    },
-    {
       "id": "2",
-      "title": "Ler um livro",
-      "description": "Capítulo sobre JavaScript",
-      "time": "morning",
+      "title": "Teste2",
+      "description": "Teste2",
+      "time": "afternoon",
       "status": "done"
     },
     {
@@ -40,6 +33,13 @@
       "title": "Meditar",
       "description": "10 minutos de meditação guiada",
       "time": "evening",
+      "status": "not_started"
+    },
+    {
+      "id": "a68e8f06-262e-4dbb-8355-98038d7e8f61",
+      "title": "Estudar",
+      "description": "Estudar React",
+      "time": "morning",
       "status": "not_started"
     }
   ]

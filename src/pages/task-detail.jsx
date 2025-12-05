@@ -1,16 +1,23 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+import { toast } from "sonner";
 
-import { ArrowLeftIcon, ChevronRightIcon, TrashIcon } from "../assets/icons";
+import {
+  ArrowLeftIcon,
+  ChevronRightIcon,
+  LoaderIcon,
+  TrashIcon,
+} from "../assets/icons";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import InputLabel from "../components/InputLabel";
 import SideBar from "../components/SideBar";
 import TimeSelect from "../components/TimeSelect";
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
   const [task, setTask] = useState();
+  const [errors, setErrors] = useState([]);
+  const [saveIsLoading, setSaveIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const handleBackClick = () => {
@@ -28,6 +35,74 @@ const TaskDetailsPage = () => {
     fetchTask();
   }, [taskId]);
 
+  const titleRef = useRef();
+  const descriptionRef = useRef();
+  const timeRef = useRef();
+
+  const handleSubmit = async () => {
+    setSaveIsLoading(true);
+    const title = titleRef.current.value;
+    const description = descriptionRef.current.value;
+    const time = timeRef.current.value;
+
+    const newErrors = [];
+
+    if (!title.trim()) {
+      newErrors.push({
+        inputName: "title",
+        message: "O título é obrigatório.",
+      });
+    }
+    if (!time.trim()) {
+      newErrors.push({
+        inputName: "time",
+        message: "O período é obrigatório.",
+      });
+    }
+    if (!description.trim()) {
+      newErrors.push({
+        inputName: "description",
+        message: "A descrição é obrigatória.",
+      });
+    }
+
+    const taskFinal = {
+      title: title,
+      description: description,
+      time: time,
+    };
+
+    setErrors(newErrors);
+
+    if (newErrors.length > 0) {
+      setSaveIsLoading(false);
+      return toast.error("Por favor, corrija os erros no formulário.");
+    }
+
+    const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
+      method: "PATCH",
+      body: JSON.stringify(taskFinal),
+    });
+    if (!response.ok) {
+      setSaveIsLoading(false);
+      return toast.error("Erro ao atualizar tarefa!");
+    }
+
+    const newTask = await response.json();
+    setTask(newTask);
+
+    setSaveIsLoading(false);
+    toast.success("Tarefa atualizada com sucesso!");
+  };
+
+  const titleError = errors.find(
+    (error) => error.inputName === "title",
+  )?.message;
+  const timeError = errors.find((error) => error.inputName === "time")?.message;
+  const descriptionError = errors.find(
+    (error) => error.inputName === "description",
+  )?.message;
+
   return (
     <div className="flex">
       <SideBar />
@@ -41,12 +116,9 @@ const TaskDetailsPage = () => {
               <ArrowLeftIcon />
             </button>
             <div className="flex items-center gap-1 text-xs">
-              <span
-                onClick={handleBackClick}
-                className="text-brand-text-gray cursor-pointer"
-              >
+              <Link to={"/"} className="text-brand-text-gray cursor-pointer">
                 Minhas Tarefas
-              </span>
+              </Link>
               <ChevronRightIcon className="text-brand-text-gray" />
               <span className="text-brand-primary font-semibold">
                 {task?.title}
@@ -63,28 +135,41 @@ const TaskDetailsPage = () => {
 
         <div className="bg-brand-white space-y-6 rounded-xl p-6">
           <div>
-            <Input id="title" label={"Titulo"} value={task?.title} />
+            <Input
+              id="title"
+              label={"Titulo"}
+              defaultValue={task?.title}
+              ref={titleRef}
+              error={titleError}
+            />
           </div>
 
           <div>
-            <TimeSelect value={task?.time} />
+            <TimeSelect
+              defaultValue={task?.time}
+              ref={timeRef}
+              error={timeError}
+            />
           </div>
 
           <div>
             <Input
               id="description"
               label={"Descrição"}
-              value={task?.description}
-              textarea
-              rows={4}
+              defaultValue={task?.description}
+              ref={descriptionRef}
+              error={descriptionError}
             />
           </div>
 
           <div className="flex w-full justify-end gap-3">
-            <Button color="secondary" size="large">
-              Cancelar
-            </Button>
-            <Button color="primary" size="large">
+            <Button
+              color="primary"
+              size="large"
+              onClick={handleSubmit}
+              disabled={saveIsLoading}
+            >
+              {saveIsLoading && <LoaderIcon className="mr-2 animate-spin" />}
               Guardar
             </Button>
           </div>
