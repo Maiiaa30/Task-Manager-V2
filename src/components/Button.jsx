@@ -9,7 +9,7 @@ const Button = ({
   ...rest
 }) => {
   const button = tv({
-    base: "flex cursor-pointer items-center justify-center gap-2 rounded-md px-3 font-semibold transition hover:opacity-75",
+    base: "flex cursor-pointer items-center justify-center gap-2 rounded-md px-3 font-semibold transition hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50 disabled:transition disabled:hover:opacity-25",
     variants: {
       color: {
         primary: "bg-brand-primary text-white",
