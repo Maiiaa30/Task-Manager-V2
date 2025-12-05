@@ -31,16 +31,9 @@ const Tasks = () => {
   const afternoonTasks = tasks.filter((task) => task.time === "afternoon");
   const eveningTasks = tasks.filter((task) => task.time === "evening");
 
-  const handleTaskDeleteClick = async (taskId) => {
-    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      return toast.error("Erro ao apagar tarefa!");
-    }
+  const onDeleteTaskSuccess = async (taskId) => {
     const newTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(newTasks);
-    toast.success("Tarefa apagada com sucesso!");
   };
 
   const handleTaskCheckboxClick = (taskId) => {
@@ -113,7 +106,7 @@ const Tasks = () => {
               task={task}
               key={task.id}
               handleCheckboxClick={handleTaskCheckboxClick}
-              handleDeleteClick={handleTaskDeleteClick}
+              onDeleteSuccess={onDeleteTaskSuccess}
             />
           ))}
         </div>
@@ -125,7 +118,7 @@ const Tasks = () => {
               task={task}
               key={task.id}
               handleCheckboxClick={handleTaskCheckboxClick}
-              handleDeleteClick={handleTaskDeleteClick}
+              onDeleteSuccess={onDeleteTaskSuccess}
             />
           ))}
         </div>
@@ -137,7 +130,7 @@ const Tasks = () => {
               task={task}
               key={task.id}
               handleCheckboxClick={handleTaskCheckboxClick}
-              handleDeleteClick={handleTaskDeleteClick}
+              onDeleteSuccess={onDeleteTaskSuccess}
             />
           ))}
         </div>

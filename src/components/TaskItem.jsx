@@ -1,9 +1,26 @@
 import PropTypes from "prop-types";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { CheckIcon, DetailsIcon, LoaderIcon, TrashIcon } from "../assets/icons";
 import Button from "./Button";
+const TaskItem = ({ task, handleCheckboxClick, onDeleteSuccess }) => {
+  const [deleteIsLoading, setDeleteIsLoading] = useState(false);
 
-const TaskItem = ({ task, handleCheckboxClick, handleDeleteClick }) => {
+  const handleDeleteClick = async () => {
+    setDeleteIsLoading(true);
+    const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      setDeleteIsLoading(false);
+      return toast.error("Erro ao apagar tarefa!");
+    }
+    onDeleteSuccess(task.id);
+    toast.success("Tarefa apagada com sucesso!");
+    setDeleteIsLoading(false);
+  };
+
   const getStatusStyles = () => {
     if (task.status === "done") {
       return "bg-brand-primary/10 text-brand-primary";
@@ -48,8 +65,16 @@ const TaskItem = ({ task, handleCheckboxClick, handleDeleteClick }) => {
         {task.title}
       </div>
       <div className="flex items-center gap-2">
-        <Button color="ghost" onClick={() => handleDeleteClick(task.id)}>
-          <TrashIcon className="text-brand-text-gray" />
+        <Button
+          color="ghost"
+          onClick={handleDeleteClick}
+          disabled={deleteIsLoading}
+        >
+          {deleteIsLoading ? (
+            <LoaderIcon className="animate-spin" />
+          ) : (
+            <TrashIcon className="text-brand-text-gray" />
+          )}
         </Button>
         <a href="#" className="transition hover:opacity-75">
           <DetailsIcon />
