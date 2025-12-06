@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
@@ -16,8 +17,12 @@ import TimeSelect from "../components/TimeSelect";
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
   const [task, setTask] = useState();
-  const [errors, setErrors] = useState([]);
-  const [saveIsLoading, setSaveIsLoading] = useState(false);
+  const {
+    register,
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    reset,
+  } = useForm();
 
   const navigate = useNavigate();
   const handleBackClick = () => {
@@ -31,77 +36,29 @@ const TaskDetailsPage = () => {
       });
       const data = await response.json();
       setTask(data);
+      reset(data);
     };
     fetchTask();
-  }, [taskId]);
+  }, [taskId, reset]);
 
-  const titleRef = useRef();
-  const descriptionRef = useRef();
-  const timeRef = useRef();
-
-  const handleSubmit = async () => {
-    setSaveIsLoading(true);
-    const title = titleRef.current.value;
-    const description = descriptionRef.current.value;
-    const time = timeRef.current.value;
-
-    const newErrors = [];
-
-    if (!title.trim()) {
-      newErrors.push({
-        inputName: "title",
-        message: "O título é obrigatório.",
-      });
-    }
-    if (!time.trim()) {
-      newErrors.push({
-        inputName: "time",
-        message: "O período é obrigatório.",
-      });
-    }
-    if (!description.trim()) {
-      newErrors.push({
-        inputName: "description",
-        message: "A descrição é obrigatória.",
-      });
-    }
-
-    const taskFinal = {
-      title: title,
-      description: description,
-      time: time,
-    };
-
-    setErrors(newErrors);
-
-    if (newErrors.length > 0) {
-      setSaveIsLoading(false);
-      return toast.error("Por favor, corrija os erros no formulário.");
-    }
-
+  const handleUpdate = async (data) => {
     const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
       method: "PATCH",
-      body: JSON.stringify(taskFinal),
+      body: JSON.stringify({
+        title: data.title.trim(),
+        description: data.description.trim(),
+        time: data.time,
+      }),
     });
     if (!response.ok) {
-      setSaveIsLoading(false);
       return toast.error("Erro ao atualizar tarefa!");
     }
 
     const newTask = await response.json();
     setTask(newTask);
 
-    setSaveIsLoading(false);
     toast.success("Tarefa atualizada com sucesso!");
   };
-
-  const titleError = errors.find(
-    (error) => error.inputName === "title",
-  )?.message;
-  const timeError = errors.find((error) => error.inputName === "time")?.message;
-  const descriptionError = errors.find(
-    (error) => error.inputName === "description",
-  )?.message;
 
   const handleDeleteClick = async () => {
     const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
@@ -148,47 +105,64 @@ const TaskDetailsPage = () => {
           </Button>
         </div>
 
-        <div className="bg-brand-white space-y-6 rounded-xl p-6">
-          <div>
-            <Input
-              id="title"
-              label={"Titulo"}
-              defaultValue={task?.title}
-              ref={titleRef}
-              error={titleError}
-            />
-          </div>
+        <form onSubmit={handleSubmit(handleUpdate)}>
+          <div className="bg-brand-white space-y-6 rounded-xl p-6">
+            <div>
+              <Input
+                id="title"
+                label={"Titulo"}
+                {...register("title", {
+                  required: "O título é obrigatório",
+                  validate: (value) => {
+                    if (value.trim().length === 0) {
+                      return "O título não pode ser vazio";
+                    }
+                    return true;
+                  },
+                })}
+                error={errors?.title?.message}
+              />
+            </div>
 
-          <div>
-            <TimeSelect
-              defaultValue={task?.time}
-              ref={timeRef}
-              error={timeError}
-            />
-          </div>
+            <div>
+              <TimeSelect
+                {...register("time", {
+                  required: "O horario é obrigatório",
+                })}
+                error={errors?.time?.message}
+              />
+            </div>
 
-          <div>
-            <Input
-              id="description"
-              label={"Descrição"}
-              defaultValue={task?.description}
-              ref={descriptionRef}
-              error={descriptionError}
-            />
-          </div>
+            <div>
+              <Input
+                id="description"
+                label={"Descrição"}
+                {...register("description", {
+                  required: "A descrição é obrigatória",
+                  validate: (value) => {
+                    if (value.trim().length === 0) {
+                      return "A descrição não pode ser vazia";
+                    }
+                    return true;
+                  },
+                })}
+                error={errors?.description?.message}
+              />
+            </div>
 
-          <div className="flex w-full justify-end gap-3">
-            <Button
-              color="primary"
-              size="large"
-              onClick={handleSubmit}
-              disabled={saveIsLoading}
-            >
-              {saveIsLoading && <LoaderIcon className="mr-2 animate-spin" />}
-              Guardar
-            </Button>
+            <div className="flex w-full justify-end gap-3">
+              <Button
+                color="primary"
+                size="large"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                {isSubmitting && <LoaderIcon className="mr-2 animate-spin" />}
+                Guardar
+              </Button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
