@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -15,60 +15,87 @@ import SideBar from "../components/SideBar";
 import TimeSelect from "../components/TimeSelect";
 
 const TaskDetailsPage = () => {
+  const queryClient = useQueryClient();
   const { taskId } = useParams();
-  const [task, setTask] = useState();
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     handleSubmit,
     reset,
   } = useForm();
+
+  const { mutate: updateTask, isPending: updateTaskIsLoading } = useMutation({
+    mutationKey: ["updateTask", taskId],
+    mutationFn: async (data) => {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title: data.title.trim(),
+          description: data.description.trim(),
+          time: data.time,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error();
+      }
+      const updatedTask = await response.json();
+      queryClient.setQueryData("tasks", (oldData) => {
+        return oldData.map((oldTask) => {
+          if (oldTask.id === taskId) {
+            return updatedTask;
+          }
+          return oldTask;
+        });
+      });
+    },
+  });
+
+  const { mutate: deleteTask, isPending: deleteTaskIsLoading } = useMutation({
+    mutationKey: ["deleteTask", taskId],
+    mutationFn: async () => {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error();
+      }
+      const deletedTask = await response.json();
+      queryClient.setQueryData("tasks", (oldData) => {
+        return oldData.filter((oldTask) => oldTask.id !== deletedTask.id);
+      });
+    },
+  });
+
+  const { data: task } = useQuery({
+    queryKey: ["task", taskId],
+    queryFn: async () => {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: "GET",
+      });
+      const data = await response.json();
+      reset(data);
+    },
+  });
 
   const navigate = useNavigate();
   const handleBackClick = () => {
     navigate(-1);
   };
 
-  useEffect(() => {
-    const fetchTask = async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: "GET",
-      });
-      const data = await response.json();
-      setTask(data);
-      reset(data);
-    };
-    fetchTask();
-  }, [taskId, reset]);
-
   const handleUpdate = async (data) => {
-    const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        title: data.title.trim(),
-        description: data.description.trim(),
-        time: data.time,
-      }),
+    updateTask(data, {
+      onSuccess: () => {
+        toast.success("Tarefa atualizada com sucesso!");
+      },
+      onError: () => toast.error("Erro ao atualizar tarefa!"),
     });
-    if (!response.ok) {
-      return toast.error("Erro ao atualizar tarefa!");
-    }
-
-    const newTask = await response.json();
-    setTask(newTask);
-
-    toast.success("Tarefa atualizada com sucesso!");
   };
 
-  const handleDeleteClick = async () => {
-    const response = await fetch(`http://localhost:3000/tasks/${task.id}`, {
-      method: "DELETE",
+  const handleDeleteClick = async (data) => {
+    deleteTask(data, {
+      onSuccess: () => toast.success("Tarefa apagada com sucesso!"),
+      onError: () => toast.error("Erro ao apagar tarefa!"),
     });
-    if (!response.ok) {
-      return toast.error("Erro ao apagar tarefa!");
-    }
-    navigate(-1);
-    toast.success("Tarefa apagada com sucesso!");
   };
 
   return (
@@ -154,10 +181,12 @@ const TaskDetailsPage = () => {
               <Button
                 color="primary"
                 size="large"
-                disabled={isSubmitting}
+                disabled={updateTaskIsLoading || deleteTaskIsLoading}
                 type="submit"
               >
-                {isSubmitting && <LoaderIcon className="mr-2 animate-spin" />}
+                {(updateTaskIsLoading || deleteTaskIsLoading) && (
+                  <LoaderIcon className="mr-2 animate-spin" />
+                )}
                 Guardar
               </Button>
             </div>
