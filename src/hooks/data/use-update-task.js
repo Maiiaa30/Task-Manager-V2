@@ -7,6 +7,9 @@ export const useUpdateTask = (taskId) => {
     mutationFn: async (data) => {
       const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           title: data.title.trim(),
           description: data.description.trim(),
@@ -17,7 +20,9 @@ export const useUpdateTask = (taskId) => {
         throw new Error();
       }
       const updatedTask = await response.json();
-      queryClient.setQueryData("tasks", (oldData) => {
+      queryClient.setQueryData(["task", taskId], updatedTask);
+      queryClient.setQueryData(["tasks"], (oldData) => {
+        if (!oldData) return oldData;
         return oldData.map((oldTask) => {
           if (oldTask.id === taskId) {
             return updatedTask;

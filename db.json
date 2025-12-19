@@ -2,7 +2,7 @@
   "tasks": [
     {
       "id": "3",
-      "title": "Treinar",
+      "title": "Treinar nao",
       "description": "30 minutos de corrida",
       "time": "afternoon",
       "status": "in_progress"
@@ -26,6 +26,13 @@
       "title": "Meditar",
       "description": "10 minutos de meditação guiada",
       "time": "evening",
+      "status": "not_started"
+    },
+    {
+      "id": "3ba5ae4d-8696-4690-aa40-c2e292c4eb3a",
+      "title": "teste funcio",
+      "description": "teste",
+      "time": "morning",
       "status": "not_started"
     }
   ]
