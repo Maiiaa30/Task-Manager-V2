@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -13,7 +12,8 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import SideBar from "../components/SideBar";
 import TimeSelect from "../components/TimeSelect";
-import { useDeleteTaskDetails } from "../hooks/data/use-delete-task-details";
+import { useDeleteTask } from "../hooks/data/use-delete-task";
+import { useGetTask } from "../hooks/data/use-get-task";
 import { useUpdateTask } from "../hooks/data/use-update-task";
 
 const TaskDetailsPage = () => {
@@ -29,17 +29,11 @@ const TaskDetailsPage = () => {
     useUpdateTask(taskId);
 
   const { mutate: deleteTask, isPending: deleteTaskIsLoading } =
-    useDeleteTaskDetails(taskId);
+    useDeleteTask(taskId);
 
-  const { data: task } = useQuery({
-    queryKey: ["task", taskId],
-    queryFn: async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: "GET",
-      });
-      const data = await response.json();
-      reset(data);
-    },
+  const { data: task } = useGetTask({
+    taskId,
+    onSuccess: (data) => reset(data),
   });
 
   const navigate = useNavigate();
