@@ -27,13 +27,6 @@
       "description": "10 minutos de meditação guiada",
       "time": "evening",
       "status": "not_started"
-    },
-    {
-      "id": "acd7ec58-86f8-4838-82df-180b13a3bac8",
-      "title": "teste 2",
-      "description": "teste",
-      "time": "morning",
-      "status": "not_started"
     }
   ]
 }
