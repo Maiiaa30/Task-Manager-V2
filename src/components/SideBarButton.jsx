@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
+import { NavLink } from "react-router";
 import { tv } from "tailwind-variants";
 
-const SideBarButton = ({ children, color }) => {
+const SideBarButton = ({ children, to }) => {
   const sidebar = tv({
     base: "flex items-center gap-2 rounded-lg px-6 py-3",
     variants: {
@@ -13,9 +14,14 @@ const SideBarButton = ({ children, color }) => {
   });
 
   return (
-    <a href="" className={sidebar({ color })}>
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        sidebar({ color: isActive ? "selected" : "unselect" })
+      }
+    >
       {children}
-    </a>
+    </NavLink>
   );
 };
 
