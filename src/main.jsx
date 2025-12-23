@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { Toaster } from "sonner";
 
-import HomePage from "./pages/home.jsx";
+import HomePage from "./pages/Home.jsx";
 import TaskDetailsPage from "./pages/TaskDetails.jsx";
 import TasksPage from "./pages/Tasks.jsx";
 
